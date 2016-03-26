@@ -23,6 +23,7 @@ const (
 func main() {
 	arguments, _ := docopt.Parse(usage(), nil, true, Title, false)
 	outFileName := arguments["--file"].(string)
+	solid := arguments["--solid"].(bool)
 	writer, errOut := os.Create(outFileName)
 	if errOut != nil {
 		fmt.Printf("Error creating destination: %v\n", errOut)
@@ -32,7 +33,7 @@ func main() {
 
 	chunks.AddArchiveName(chunkConsumer, "Starting Game")
 	chunks.AddGameState(chunkConsumer)
-	chunks.AddLevel(chunkConsumer, 1)
+	chunks.AddLevel(chunkConsumer, 1, solid)
 
 	chunkConsumer.Finish()
 }
@@ -41,12 +42,13 @@ func usage() string {
 	return Title + `
 
 Usage:
-  construct [--file=<file-name>]
+  construct [--file=<file-name>] [--solid]
 	construct -h | --help
 	construct --version
 
 Options:
   --file=<file-name>  specifies the target file name. [default: archive.dat]
+  --solid             Creates an entirely solid map; Exception: Starting tile on level 1.
   -h --help           Show this screen.
   --version           Show version.
 `

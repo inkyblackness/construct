@@ -8,14 +8,14 @@ import (
 )
 
 // AddLevel adds one level to the consumer
-func AddLevel(consumer chunk.Consumer, levelID int) {
+func AddLevel(consumer chunk.Consumer, levelID int, solid bool) {
 	levelBaseID := res.ResourceID(4000 + 100*levelID)
 
 	AddStaticChunk(consumer, levelBaseID+2, []byte{0x0B, 0x00, 0x00, 0x00})
 	AddStaticChunk(consumer, levelBaseID+3, []byte{0x1B, 0x00, 0x00, 0x00})
 
 	AddBasicLevelInformation(consumer, levelBaseID)
-	AddMap(consumer, levelBaseID)
+	AddMap(consumer, levelBaseID, solid, levelID == 1)
 	AddStaticChunk(consumer, levelBaseID+6, make([]byte, 8))
 	AddLevelTextures(consumer, levelBaseID)
 	AddMasterObjectTables(consumer, levelBaseID)
@@ -61,19 +61,28 @@ func AddBasicLevelInformation(consumer chunk.Consumer, levelBaseID res.ResourceI
 }
 
 // AddMap adds a map
-func AddMap(consumer chunk.Consumer, levelBaseID res.ResourceID) {
+func AddMap(consumer chunk.Consumer, levelBaseID res.ResourceID, solid bool, exceptStartingPosition bool) {
 	tileFactory := func() interface{} {
 		entry := data.DefaultTileMapEntry()
 
-		entry.Type = data.Open
+		if solid {
+			entry.Type = data.Solid
+		} else {
+			entry.Type = data.Open
+		}
 
 		return entry
 	}
 
 	table := data.NewTable(64*64, tileFactory)
 	for index, entry := range table.Entries {
+		tile := entry.(*data.TileMapEntry)
+
+		if solid && exceptStartingPosition && ((index % 64) == 30) && ((index / 64) == 22) {
+			tile.Type = data.Open
+		}
+		// Block off outer border. Game locks up entering such tiles otherwise.
 		if (index < 64) || ((index % 64) == 0) || ((index % 64) == 63) || (index > (64 * 63)) {
-			tile := entry.(*data.TileMapEntry)
 			tile.Type = data.Solid
 		}
 	}
