@@ -8,12 +8,13 @@ This is a tool as part of the [InkyBlackness](https://inkyblackness.github.io) p
 
 ```
 Usage:
-  construct [--file=<file-name>]
-	construct -h | --help
-	construct --version
+  construct [--file=<file-name>] [--solid]
+  construct -h | --help
+  construct --version
 
 Options:
   --file=<file-name>  specifies the target file name. [default: archive.dat]
+  --solid             Creates an entirely solid map; Exception: Starting tile on level 1.
   -h --help           Show this screen.
   --version           Show version.
 ```

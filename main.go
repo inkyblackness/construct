@@ -43,8 +43,8 @@ func usage() string {
 
 Usage:
   construct [--file=<file-name>] [--solid]
-	construct -h | --help
-	construct --version
+  construct -h | --help
+  construct --version
 
 Options:
   --file=<file-name>  specifies the target file name. [default: archive.dat]
