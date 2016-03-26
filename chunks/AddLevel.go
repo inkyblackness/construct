@@ -26,7 +26,7 @@ func AddLevel(consumer chunk.Consumer, levelID int) {
 	AddStaticChunk(consumer, levelBaseID+42, make([]byte, 0x1C))
 
 	AddSurveillanceChunk(consumer, levelBaseID)
-	AddStaticChunk(consumer, levelBaseID+45, make([]byte, 0x5E))
+	AddLevelVariables(consumer, levelBaseID)
 	AddMapNotes(consumer, levelBaseID)
 
 	AddStaticChunk(consumer, levelBaseID+48, make([]byte, 0x30))
@@ -49,7 +49,6 @@ func addTypedData(consumer chunk.Consumer, chunkID res.ResourceID, typeID chunk.
 	coder := serial.NewPositioningEncoder(store)
 
 	serial.MapData(data, coder)
-
 	blocks := [][]byte{store.Data()}
 	consumer.Consume(chunkID, chunk.NewBlockHolder(typeID, res.Map, blocks))
 }
@@ -84,7 +83,7 @@ func AddMap(consumer chunk.Consumer, levelBaseID res.ResourceID) {
 // AddLevelTextures adds level texture information
 func AddLevelTextures(consumer chunk.Consumer, levelBaseID res.ResourceID) {
 	data := make([]byte, 54*2)
-	data[0] = 0x01
+	data[0] = 101 // energ-light
 	AddStaticChunk(consumer, levelBaseID+7, data)
 }
 
@@ -126,21 +125,10 @@ func AddMasterObjectTables(consumer chunk.Consumer, levelBaseID res.ResourceID) 
 
 // AddLevelObjects adds level object tables
 func AddLevelObjects(consumer chunk.Consumer, levelBaseID res.ResourceID) {
-	addLevelObjectTables(consumer, levelBaseID, 0, data.LevelWeaponEntrySize, 16)
-	addLevelObjectTables(consumer, levelBaseID, 1, 6, 32)
-	addLevelObjectTables(consumer, levelBaseID, 2, 0x28, 32)
-	addLevelObjectTables(consumer, levelBaseID, 3, 12, 32)
-	addLevelObjectTables(consumer, levelBaseID, 4, 6, 32)
-	addLevelObjectTables(consumer, levelBaseID, 5, 7, 8)
-	addLevelObjectTables(consumer, levelBaseID, 6, 9, 16)
-	addLevelObjectTables(consumer, levelBaseID, 7, data.LevelSceneryEntrySize, 176)
-	addLevelObjectTables(consumer, levelBaseID, 8, data.LevelItemEntrySize, 128)
-	addLevelObjectTables(consumer, levelBaseID, 9, 0x1E, 64)
-	addLevelObjectTables(consumer, levelBaseID, 10, 14, 64)
-	addLevelObjectTables(consumer, levelBaseID, 11, 10, 32)
-	addLevelObjectTables(consumer, levelBaseID, 12, 0x1C, 160)
-	addLevelObjectTables(consumer, levelBaseID, 13, 21, 64)
-	addLevelObjectTables(consumer, levelBaseID, 14, 0x2E, 64)
+	for class := 0; class < 15; class++ {
+		meta := data.LevelObjectClassMetaEntry(res.ObjectClass(class))
+		addLevelObjectTables(consumer, levelBaseID, class, meta.EntrySize, meta.EntryCount)
+	}
 }
 
 type tempStruct struct {
@@ -168,6 +156,13 @@ func addLevelObjectTables(consumer chunk.Consumer, levelBaseID res.ResourceID, c
 func AddSurveillanceChunk(consumer chunk.Consumer, levelBaseID res.ResourceID) {
 	AddStaticChunk(consumer, levelBaseID+43, make([]byte, 8*2))
 	AddStaticChunk(consumer, levelBaseID+44, make([]byte, 8*2))
+}
+
+// AddLevelVariables adds a chunk for level variables.
+func AddLevelVariables(consumer chunk.Consumer, levelBaseID res.ResourceID) {
+	info := data.NewLevelVariables()
+
+	addData(consumer, levelBaseID+45, info)
 }
 
 // AddMapNotes prepares empty map notes chunks

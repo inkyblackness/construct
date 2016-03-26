@@ -11,8 +11,11 @@ import (
 func AddGameState(consumer chunk.Consumer) {
 	store := serial.NewByteStore()
 	coder := serial.NewPositioningEncoder(store)
+	state := data.DefaultGameState()
 
 	coder.CodeBytes(make([]byte, data.GameStateSize))
+	coder.SetCurPos(0)
+	serial.MapData(state, coder)
 
 	blocks := [][]byte{store.Data()}
 	consumer.Consume(res.ResourceID(0x0FA1), chunk.NewBlockHolder(chunk.BasicChunkType, res.Map, blocks))
