@@ -105,7 +105,7 @@ func AddMasterObjectTables(consumer chunk.Consumer, levelBaseID res.ResourceID) 
 			master := data.DefaultLevelObjectEntry()
 
 			masters[index] = master
-			master.Next = uint16((index + 1) % masterCount)
+			master.Next = 0
 			master.Previous = uint16((masterCount + index - 1) % masterCount)
 		}
 
@@ -151,13 +151,12 @@ func addLevelObjectTables(consumer chunk.Consumer, levelBaseID res.ResourceID, c
 	for i := range table.Entries {
 		table.Entries[i] = &tempStruct{
 			LevelObjectPrefix: data.LevelObjectPrefix{
-				Next:                  uint16((i + 1) % entryCount),
+				Next:                  0,
 				Previous:              uint16((entryCount + i - 1) % entryCount),
 				LevelObjectTableIndex: 0},
 			Extra: make([]byte, entrySize-data.LevelObjectPrefixSize)}
 	}
 	addData(consumer, levelBaseID+10+res.ResourceID(classID), table)
-	//AddStaticChunk(consumer, levelBaseID+10+res.ResourceID(classID), make([]byte, entrySize*entryCount))
 	AddStaticChunk(consumer, levelBaseID+25+res.ResourceID(classID), make([]byte, entrySize))
 }
 
