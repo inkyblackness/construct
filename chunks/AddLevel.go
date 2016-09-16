@@ -17,7 +17,7 @@ func AddLevel(consumer chunk.Consumer, levelID int, solid bool) {
 
 	AddBasicLevelInformation(consumer, levelBaseID)
 	AddMap(consumer, levelBaseID, solid, levelID == 1)
-	AddStaticChunk(consumer, levelBaseID+6, make([]byte, 8))
+	AddLevelTimer(consumer, levelBaseID)
 	AddLevelTextures(consumer, levelBaseID)
 	AddMasterObjectTables(consumer, levelBaseID)
 	AddLevelObjects(consumer, levelBaseID)
@@ -59,6 +59,11 @@ func AddBasicLevelInformation(consumer chunk.Consumer, levelBaseID res.ResourceI
 	info := data.DefaultLevelInformation()
 
 	addTypedData(consumer, levelBaseID+4, chunk.BasicChunkType.WithCompression(), info)
+}
+
+// AddLevelTimer adds the basic timer list structure
+func AddLevelTimer(consumer chunk.Consumer, levelBaseID res.ResourceID) {
+	AddStaticChunk(consumer, levelBaseID+6, make([]byte, data.TimerEntrySize))
 }
 
 // AddMap adds a map
