@@ -9,13 +9,13 @@ import (
 )
 
 // AddLevel adds one level to the consumer
-func AddLevel(consumer chunk.Consumer, levelID int, solid bool) {
+func AddLevel(consumer chunk.Consumer, levelID int, solid bool, isCyberspace bool) {
 	levelBaseID := res.ResourceID(4000 + 100*levelID)
 
 	AddStaticChunk(consumer, levelBaseID+2, []byte{0x0B, 0x00, 0x00, 0x00})
 	AddStaticChunk(consumer, levelBaseID+3, []byte{0x1B, 0x00, 0x00, 0x00})
 
-	AddBasicLevelInformation(consumer, levelBaseID)
+	AddBasicLevelInformation(consumer, levelBaseID, isCyberspace)
 	AddMap(consumer, levelBaseID, solid, levelID == 1)
 	AddLevelTimer(consumer, levelBaseID)
 	AddLevelTextures(consumer, levelBaseID)
@@ -55,9 +55,12 @@ func addTypedData(consumer chunk.Consumer, chunkID res.ResourceID, typeID chunk.
 }
 
 // AddBasicLevelInformation adds the basic level info block
-func AddBasicLevelInformation(consumer chunk.Consumer, levelBaseID res.ResourceID) {
+func AddBasicLevelInformation(consumer chunk.Consumer, levelBaseID res.ResourceID, isCyberspace bool) {
 	info := data.DefaultLevelInformation()
 
+	if isCyberspace {
+		info.CyberspaceFlag = 1
+	}
 	addTypedData(consumer, levelBaseID+4, chunk.BasicChunkType.WithCompression(), info)
 }
 
