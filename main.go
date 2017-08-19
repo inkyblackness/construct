@@ -13,7 +13,7 @@ import (
 
 const (
 	// Version contains the current version number
-	Version = "0.3.0"
+	Version = "1.0.0"
 	// Name is the name of the application
 	Name = "InkyBlackness Construct"
 	// Title contains a combined string of name and version
